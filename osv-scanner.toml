@@ -1,0 +1,4 @@
+[[IgnoredVulns]]
+id = "GO-2026-5932"
+ignoreUntil = 2026-10-15
+reason = "The 38 .vib test modules do not import the affected openpgp package; verified with go mod why."
