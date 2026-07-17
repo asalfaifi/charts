@@ -3,7 +3,7 @@
 
 name: '[CI/CD] CI Pipeline'
 on: # rebuild any PRs and main branch changes
-  pull_request_target:
+  pull_request:
     types:
       - opened
       - reopened
@@ -11,7 +11,6 @@ on: # rebuild any PRs and main branch changes
       - labeled
     branches:
       - main
-      - bitnami:main
 # Remove all permissions by default
 permissions: {}
 # Avoid concurrency over the same PR
@@ -591,7 +590,7 @@ jobs:
           fi
           echo "verification_mode=${verification_mode}" >> $GITHUB_OUTPUT
           echo "runtime_parameters_file=${runtime_parameters_file}" >> $GITHUB_OUTPUT
-      - uses: vmware-labs/vmware-image-builder-action@v0
+      - uses: vmware-labs/vmware-image-builder-action@90ab5b51680627fe01ea9b2d9ba5d7c9db4c56bc # v0
         name: Verify ${{ needs.get-chart.outputs.chart }}
         with:
           pipeline: ${{ needs.get-chart.outputs.chart }}/vib-verify.json

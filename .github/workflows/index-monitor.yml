@@ -107,15 +107,18 @@ jobs:
     name: Re-upload index.yaml
     needs: [validation-check, integrity-check]
     if: ${{ always() && github.repository_owner == 'bitnami' && (needs.validation-check.outputs.result != 'ok' || needs.integrity-check.outputs.result != 'ok') }}
-    uses: bitnami/charts/.github/workflows/sync-chart-cloudflare-index.yml@index
-    secrets: inherit
+    uses: bitnami/charts/.github/workflows/sync-chart-cloudflare-index.yml@360d3bb39441afc9b4591d09bca6e2c63ec14f29 # index
+    secrets:
+      CLOUDFLARE_CLIENT_ID: ${{ secrets.CLOUDFLARE_CLIENT_ID }}
+      CLOUDFLARE_CLIENT_SECRET: ${{ secrets.CLOUDFLARE_CLIENT_SECRET }}
+      CLOUDFLARE_USER_AUTH: ${{ secrets.CLOUDFLARE_USER_AUTH }}
     permissions:
       contents: read
   notify:
     name: Send notification
     needs: [validation-check, integrity-check]
     if: ${{ always() && github.repository_owner == 'bitnami' && (needs.validation-check.outputs.result != 'ok' || needs.integrity-check.outputs.result != 'ok') }}
-    uses: bitnami/support/.github/workflows/gchat-notification.yml@main
+    uses: bitnami/support/.github/workflows/gchat-notification.yml@b045f0b718c27d29a1e26da2a27815edee88f53c # main
     with:
       workflow: ${{ github.workflow }}
       job-url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}

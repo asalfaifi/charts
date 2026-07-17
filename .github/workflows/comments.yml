@@ -17,5 +17,6 @@ concurrency:
 jobs:
   call-comments-workflow:
     if: ${{ github.repository_owner == 'bitnami' }}
-    uses: bitnami/support/.github/workflows/comment-created.yml@main
-    secrets: inherit
+    uses: bitnami/support/.github/workflows/comment-created.yml@b045f0b718c27d29a1e26da2a27815edee88f53c # main
+    secrets:
+      BITNAMI_SUPPORT_BOARD_TOKEN: ${{ secrets.BITNAMI_SUPPORT_BOARD_TOKEN }}

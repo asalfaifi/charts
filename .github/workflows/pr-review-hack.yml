@@ -6,7 +6,7 @@
 # NOTE: This workflow is maintained in the https://github.com/bitnami/support repository
 name: '[Support] PR review comment trigger'
 on:
-  workflow_run:
+  workflow_run: # zizmor: ignore[dangerous-triggers] Trusted-repository guard below; artifact data is parsed, never executed.
     workflows:
       - '\[Support\] PR review comment card movements'
     types:
@@ -24,14 +24,16 @@ jobs:
       review_state: ${{ steps.get-info.outputs.review_state }}
       labels: ${{ steps.get-info.outputs.labels }}
       resource_url: ${{ steps.get-info.outputs.resource_url }}
-    if: ${{ github.repository_owner == 'bitnami' && github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.repository_owner == 'bitnami' && github.event.workflow_run.head_repository.full_name == github.repository && github.event.workflow_run.conclusion == 'success' }}
     steps:
       - id: get-info
         env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WORKFLOW_ACTOR: ${{ github.event.workflow_run.actor.login }}
+          WORKFLOW_ARTIFACTS_URL: ${{ github.event.workflow_run.artifacts_url }}
         run: |
-          actor="${{ github.event.workflow_run.actor.login }}"
-          download_url="$(gh api "${{ github.event.workflow_run.artifacts_url }}" | jq -cr '.artifacts[] | select(.name == "pull_request_info.json") | .archive_download_url')"
+          actor="$WORKFLOW_ACTOR"
+          download_url="$(gh api "$WORKFLOW_ARTIFACTS_URL" | jq -cr '.artifacts[] | select(.name == "pull_request_info.json") | .archive_download_url')"
           curl -sSL -o pull_request_info.zip -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" -H "Authorization: Bearer $GITHUB_TOKEN" $download_url
           unzip pull_request_info.zip
           pull_request_number="$(jq -cr '.issue.number' pull_request_info.json)"
@@ -50,11 +52,12 @@ jobs:
           echo "labels=${labels}" >> $GITHUB_OUTPUT
           echo "resource_url=${resource_url}" >> $GITHUB_OUTPUT
   call-pr-review-comment:
-    uses: bitnami/support/.github/workflows/pr-review-comment.yml@main
+    uses: bitnami/support/.github/workflows/pr-review-comment.yml@b045f0b718c27d29a1e26da2a27815edee88f53c # main
     needs: pr-info
     permissions:
       contents: read
-    secrets: inherit
+    secrets:
+      BITNAMI_SUPPORT_BOARD_TOKEN: ${{ secrets.BITNAMI_SUPPORT_BOARD_TOKEN }}
     with:
       author: ${{ needs.pr-info.outputs.author }}
       actor: ${{ needs.pr-info.outputs.actor }}

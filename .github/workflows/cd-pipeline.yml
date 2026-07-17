@@ -76,7 +76,7 @@ jobs:
         name: Checkout Repository
         with:
           path: charts
-      - uses: vmware-labs/vmware-image-builder-action@v0
+      - uses: vmware-labs/vmware-image-builder-action@90ab5b51680627fe01ea9b2d9ba5d7c9db4c56bc # v0
         name: Publish ${{ needs.get-chart.outputs.chart }}
         with:
           pipeline: ${{ needs.get-chart.outputs.chart }}/vib-publish.json
@@ -176,7 +176,7 @@ jobs:
       - vib-publish
       - update-deprecated-index
     if: ${{ always() && (needs.vib-publish.result == 'failure' || needs.update-deprecated-index.result == 'failure') }}
-    uses: bitnami/support/.github/workflows/gchat-notification.yml@main
+    uses: bitnami/support/.github/workflows/gchat-notification.yml@b045f0b718c27d29a1e26da2a27815edee88f53c # main
     with:
       workflow: ${{ github.workflow }}
       job-url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
